@@ -42,6 +42,8 @@ size_t current_tetromino_x = 0;
 size_t current_tetromino_y = 0;
 std::atomic_bool gameover = false;
 bool enable_flush_screen = true;
+size_t tetromino_count = 0;
+size_t score = 0;
 
 void init_board(size_t width, size_t height) {
   assert(width > 2 and height > 1);
@@ -56,6 +58,14 @@ void flush_screen() {
     return;
 
   clear_stdout();
+  std::cout << "tetromino index:" << tetromino_count << ", score:" << score
+            << std::endl;
+
+  std::cout << "next tetromino: \n" << next_tetromino << std::endl;
+  size_t count =
+      std::count(next_tetromino.cbegin(), next_tetromino.cend(), '\n');
+  std::cout << std::string(4 - count, '\n');
+
   for (auto &&line : board) {
     std::cout << line << std::endl;
   }
@@ -117,10 +127,18 @@ bool can_put(const std::string &tetromino, size_t left_top_x,
   return true;
 }
 
-void generate_new_tetromino() {
+std::string random_tetromino() {
   size_t tetromino_index = rand() % tetrominos.size();
-  current_tetromino =
-      tetrominos[tetromino_index][rand() % tetrominos[tetromino_index].size()];
+  return tetrominos[tetromino_index]
+                   [rand() % tetrominos[tetromino_index].size()];
+}
+
+void generate_new_tetromino() {
+  current_tetromino = next_tetromino;
+  next_tetromino = random_tetromino();
+  if (current_tetromino.empty())
+    current_tetromino = random_tetromino();
+  tetromino_count++;
 
   size_t tetromino_width = current_tetromino.size();
   size_t board_mid_index = board[0].size() / 2;
@@ -159,6 +177,7 @@ void clear_full_rows() {
   for (auto &&line : board) {
     if (line.find(' ') == std::string::npos && line != board.back()) {
       line = board_line;
+      score += 100;
     }
   }
 
