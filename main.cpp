@@ -102,7 +102,7 @@ bool can_put(const std::string &tetromino, size_t left_top_x,
              size_t left_top_y) {
   size_t x = left_top_x;
   size_t y = left_top_y;
-  for (auto &&ch : current_tetromino) {
+  for (auto &&ch : tetromino) {
     if (ch == 'o') {
       if (board[x][y] != ' ')
         return false;
